@@ -45,20 +45,20 @@ for t in range(100):
 
     loss = loss_func(out, y)
 
-
-    p=torch.max(F.softmax(out),1)[1]# [0]返回最大值[1]返回最大值的行索引
-    print(
-        '\nt:', t,
-        '\np:', p,
-
-        #'\ny:', y,
-        '\nloss:', loss,
-    )
-
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
 
-    # if t%2==0:
-    #     plt.cla()
-    #     pred=torch.max(F.softmax(out),1)[1]
+    if t % 2 == 0:
+        plt.cla()
+        pred = torch.max(F.softmax(out, 1), 1)[1]  # [0]返回最大值[1]返回最大值的行索引
+        pred_y = pred.data.numpy().squeeze()  # 去掉为1的维度
+        target_y = y.data.numpy()
+        plt.scatter(x.data.numpy()[:, 0], x.data.numpy()[:, 1],
+                    s=100, c=pred_y, cmap="RdYlGn")
+        acc = sum(pred_y == target_y) / 200
+        plt.text(1.5, -4, "acc=%.2f" % acc,
+                 fontdict={'size': 20, 'color': 'red'})
+        plt.pause(0.5)
+plt.ioff()
+plt.show()
