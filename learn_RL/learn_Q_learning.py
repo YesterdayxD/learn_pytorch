@@ -16,10 +16,12 @@ choice = [0, 1, 2, 3, 4, 5]
 
 for i in range(1):
     init_state = random.choice(choice)
-    pos = np.where(reward[init_state] != -1)
-    next = np.random.choice(pos[0], size=1).tolist()
-
     print(init_state)
+    pos = np.where(reward[init_state] != -1)
+    print('pos',pos[0])
+    next = random.choice(pos[0].tolist())
+
+    print('next',next)
 
 # print(Q)
 # print(reward)
