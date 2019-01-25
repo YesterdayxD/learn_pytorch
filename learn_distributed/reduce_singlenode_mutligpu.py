@@ -1,31 +1,38 @@
 import torch
-import os
 import torch.distributed as dist
-import sys
 from torch.multiprocessing import Process
 
-def run(rank,size):
-    tensor_list=[torch.FloatTensor([1]).cuda(rank),torch.FloatTensor([1]).cuda(rank),torch.FloatTensor([1]).cuda(rank)]
-    tensor=torch.FloatTensor([rank]).cuda(rank)
+
+def run(rank, size):
+    tensor_list = [torch.FloatTensor([1]).cuda(rank),
+                   torch.FloatTensor([1]).cuda(rank),
+                   torch.FloatTensor([1]).cuda(rank)]
+    tensor = torch.FloatTensor([rank]).cuda(rank)
     print(tensor)
-    dist.all_gather(tensor_list,tensor)
+    dist.all_gather(tensor_list, tensor)
     print(tensor_list)
 
-def run1(rank,size):
-    tensor_list=[]
-    tensor=torch.FloatTensor([rank]).cuda(rank)
+
+def run1(rank, size):
+    tensor_list = []
+    tensor = torch.FloatTensor([rank]).cuda(rank)
     print(tensor)
     dist.all_reduce(tensor)
     print(tensor)
 
-def init_process(rank,size,fn):
-    dist.init_process_group(backend='nccl',init_method="tcp://172.17.0.2:2222",world_size=size,rank=rank)
-    fn(rank,size)
-if __name__=="__main__":
-    size=3
-    processes=[]
+
+def init_process(rank, size, fn):
+    dist.init_process_group(backend='nccl',
+                            init_method="tcp://172.17.0.2:2222",
+                            world_size=size, rank=rank)
+    fn(rank, size)
+
+
+if __name__ == "__main__":
+    size = 3
+    processes = []
     for rank in range(size):
-        p=Process(target=init_process,args=(rank,size,run1))
+        p = Process(target=init_process, args=(rank, size, run1))
         p.start()
         processes.append(p)
     for p in processes:

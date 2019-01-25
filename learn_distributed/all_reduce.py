@@ -1,7 +1,10 @@
+import sys
+
 import torch
 import torch.distributed as dist
-import sys
-dist.init_process_group(backend='nccl',init_method="tcp://172.17.0.2:2222",world_size=2,rank=sys.argv[1])
+
+dist.init_process_group(backend='nccl', init_method="tcp://172.17.0.2:2222",
+                        world_size=2, rank=sys.argv[1])
 # tensor_list=[]
 # print(torch.cuda.device_count())
 # for dev_idx in range(3):
@@ -26,7 +29,7 @@ dist.init_process_group(backend='nccl',init_method="tcp://172.17.0.2:2222",world
 #     print(tensor)
 #     # print(tensor_list)
 
-tensor=torch.FloatTensor([1]).cuda(int(sys.argv[1]))
+tensor = torch.FloatTensor([1]).cuda(int(sys.argv[1]))
 print(tensor)
 dist.all_reduce(tensor)
 print(tensor)
