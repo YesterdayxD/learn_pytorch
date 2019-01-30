@@ -1,3 +1,6 @@
+import math
+
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
@@ -8,7 +11,7 @@ torch.manual_seed(1)
 EPOCH = 1
 BATCH_SIZE = 50
 LR = 0.001
-DOWNLOAD_MNIST = False
+DOWNLOAD_MNIST = True
 
 train_data = torchvision.datasets.MNIST(
     root='./mnist',
@@ -25,11 +28,30 @@ train_loader = Data.DataLoader(
     shuffle=True,
 )
 
-train_x = torch.unsqueeze(train_data.train_data, dim=1).type(torch.FloatTensor)[:2000] / 255
+train_x = torch.unsqueeze(train_data.train_data, dim=1).type(
+    torch.FloatTensor)[:2000] / 255
 train_y = train_data.train_labels[:2000]
 
-test_x = torch.unsqueeze(test_data.test_data, dim=1).type(torch.FloatTensor)[:2000] / 255
+test_x = torch.unsqueeze(test_data.test_data, dim=1).type(torch.FloatTensor)[
+         :2000] / 255
 test_y = test_data.test_labels[:2000]
+
+
+def show_filter(filters):
+    print(filters)
+    f_b, f_c, f_h, f_w = filters.shape
+    plt.ion()
+    plt.figure(1)
+    filters = filters.reshape(f_b*f_c, f_h, f_w)
+    n = int(math.sqrt(f_b))
+    for i in range(n):
+        for j in range(n):
+            # print(i, j)
+            plt.subplot(n, n, j + 1 + n * i)
+            plt.imshow(filters[j + n * i, :, :], cmap='gray_r')
+            # plt.plot(filters[j + n * i, :, :])
+    plt.show()
+    plt.pause(2)
 
 
 class CNN(nn.Module):
@@ -51,6 +73,11 @@ class CNN(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
+        print(self.conv1)
+        # pdb.set_trace()
+        # self.conv1._modules['0'].weight
+        show_filter(self.conv2._modules['0'].weight.detach().numpy())
+
         x = self.conv2(x)
         x = x.view(x.size(0), -1)
         output = self.out(x)
