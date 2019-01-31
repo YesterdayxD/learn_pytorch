@@ -53,6 +53,21 @@ def show_filter(filters):
     plt.show()
     plt.pause(2)
 
+# OUT：
+# Sequential (
+# (conv1): Conv2d(1, 20, kernel_size=(5, 5), stride=(1, 1))
+# (relu1): ReLU ()
+# (conv2): Conv2d(20, 64, kernel_size=(5, 5), stride=(1, 1))
+# (relu2): ReLU ()
+# )
+# 如果我们想获取conv1的weight和bias：
+#
+# params = model.state_dict()
+# for k, v in params.items():
+#     print(k)  # 打印网络中的变量名
+# print(params['conv1.weight'])  # 打印conv1的weight
+# print(params['conv1.bias'])  # 打印conv1的bias
+
 
 class CNN(nn.Module):
     def __init__(self):

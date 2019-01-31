@@ -104,4 +104,4 @@ for t in range(100):
         plt.text(0.5, 0, 'Loss=%.4f' % loss.data.numpy(),
                  fontdict={'size': 20, 'color': 'red'})
         plt.pause(0.5)
-        
+

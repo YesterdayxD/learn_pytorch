@@ -27,6 +27,32 @@ LOAD:
 # Load to whatever device you want
 """
 
+
+"""
+在GPU训练，在CPU推理时，保存与加载模型需要注意的事项
+model = nn.DataParallel(model).cuda()
+
+执行这个代码之后，model就不在是我们原来的模型，而是相当于在我们原来的模型外面加了
+一层支持GPU运行的外壳，这时候真正的模型对象为：real_model = model.module, 
+所以我们在保存模型的时候注意，如果保存的时候是否带有这层加的外壳，
+如果保存的时候带有的话，加载的时候也是带有的，如果保存的是真实的模型，
+加载的也是真是的模型。这里我建议保存真是的模型，因为加了module壳的模型在CPU上是不能运行的。
+--------------------- 
+SAVE:
+real_model = model.module
+torch.save(real_model, os.path.join(args.save_path,"cos_mnist_"+str(epoch+1)+"_whole.pth"))
+
+LOAD:
+args.weight=checkpoint/cos_mnist_10_whole.pth
+map_location = lambda storage, loc: storage
+model = torch.load(args.weight,map_location=map_location)
+
+作者：Lavi_qq_2910138025 
+来源：CSDN 
+原文：https://blog.csdn.net/liuweiyuxiang/article/details/82224374 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+"""
+
 import matplotlib.pyplot as plt
 import torch
 
@@ -96,4 +122,3 @@ restore_model()
 restore_params()
 plt.pause(5)
 plt.show()
-
