@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os
 import time
 from math import ceil
 from random import Random
@@ -10,6 +10,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from torchvision import datasets, transforms
+
+os.environ["CUDA_VISIBLE_DEVICES"]="1,2"
+
 
 
 class Partition(object):
@@ -58,7 +61,7 @@ class Net(nn.Module):
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = nn.Linear(320, 50)
         self.fc2 = nn.Linear(50, 10)
-        self.count=0
+        #self.count=0
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
@@ -67,8 +70,8 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        self.count+=1
-        print(self.count)
+        # self.count+=1
+        # print(self.count)
         return F.log_softmax(x)
 
 
@@ -110,6 +113,7 @@ def run():
     train_set, bsz = partition_dataset()
     model = Net().cuda()
     model = torch.nn.DataParallel(model, device_ids=[0, 1], output_device=0)
+    print(model)
     #    model = model.cuda(rank)
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
 
@@ -129,9 +133,11 @@ def run():
             loss.backward()
             # average_gradients(model)
             optimizer.step()
-        print(', epoch ', epoch, ': ',
+        print('epoch ', epoch, ': ',
               epoch_loss / num_batches,
               ', cuda: ', torch.cuda.current_device())
+        # 文件夹必须存在 路径最好用绝对路径
+        torch.save(model.module.state_dict(),"/home/limk/pytorch_distributed/model/model{}.pth".format(epoch))
 
 
 if __name__ == "__main__":
